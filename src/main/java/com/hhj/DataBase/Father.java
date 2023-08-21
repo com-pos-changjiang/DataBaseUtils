@@ -1,8 +1,8 @@
-package com.DataBase;
+package com.hhj.DataBase;
 
 
 
-import com.DataBase.Utils.ConnUtils;
+import com.hhj.DataBase.Utils.ConnUtils;
 
 import java.sql.Connection;
 import java.sql.SQLException;

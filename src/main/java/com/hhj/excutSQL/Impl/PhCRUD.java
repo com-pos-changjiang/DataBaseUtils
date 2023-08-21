@@ -1,6 +1,6 @@
-package com.excutSQL.Impl;
+package com.hhj.excutSQL.Impl;
 
-import com.zhibei.Utils.CRUD;
+import com.hhj.excutSQL.CRUD;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

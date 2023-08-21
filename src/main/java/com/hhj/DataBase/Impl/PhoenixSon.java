@@ -1,6 +1,6 @@
-package com.DataBase.Impl;
+package com.hhj.DataBase.Impl;
 
-import com.DataBase.Father;
+import com.hhj.DataBase.Father;
 
 public class PhoenixSon extends Father {
 

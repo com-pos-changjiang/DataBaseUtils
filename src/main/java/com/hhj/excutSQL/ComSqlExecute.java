@@ -1,4 +1,4 @@
-package com.excutSQL;
+package com.hhj.excutSQL;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

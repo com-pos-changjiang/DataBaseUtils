@@ -1,7 +1,7 @@
-package com.DataBase.Utils;
+package com.hhj.DataBase.Utils;
 
 
-import com.DataBase.Father;
+import com.hhj.DataBase.Father;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
