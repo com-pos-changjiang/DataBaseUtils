@@ -4,10 +4,14 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFDateUtil;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.poifs.crypt.Decryptor;
+import org.apache.poi.poifs.crypt.EncryptionInfo;
+import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.*;
+import java.security.GeneralSecurityException;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -25,7 +29,40 @@ public class MyXlsxUtils {
         outPutExcel(getMapKeyValue(excelMessage));
     }
 
+    public static Map<String, List<String>> getEncExcelMessage(String filePath,String password) {
+        return getEncExcelMessage(filePath,password,0);
+    }
+    //读取加密excel文件
+    public static Map<String, List<String>> getEncExcelMessage(String filePath,String password,int sheetIndex){
+        InputStream fis = null;
+        try {
+            fis = new FileInputStream(filePath);
+            Workbook workbook = null;
+            //解密
+            POIFSFileSystem pfs = new POIFSFileSystem(fis);
+            EncryptionInfo encInfo = new EncryptionInfo(pfs);
+            Decryptor decryptor = new Decryptor(encInfo);
+            decryptor.verifyPassword(password);
+            if (filePath.endsWith(".xlsx")) {
+                workbook = new XSSFWorkbook(decryptor.getDataStream(pfs));
+            } else if (filePath.endsWith(".xls") || filePath.endsWith(".et")) {
+                workbook = new HSSFWorkbook(decryptor.getDataStream(pfs));
+            }
+            fis.close();
+            return new MyXlsxUtils().parseExcel(workbook,sheetIndex);
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (GeneralSecurityException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public static Map<String, List<String>> getExcelMessage(String filePath) {
+        return getExcelMessage(filePath,0);
+    }
+    public static Map<String, List<String>> getExcelMessage(String filePath,int sheetIndex) {
         InputStream fis = null;
         try {
             fis = new FileInputStream(filePath);
@@ -36,19 +73,18 @@ public class MyXlsxUtils {
                 workbook = new HSSFWorkbook(fis);
             }
             fis.close();
-            return new MyXlsxUtils().parseExcel(workbook);
+            return new MyXlsxUtils().parseExcel(workbook,sheetIndex);
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
-
-    private Map<String, List<String>> parseExcel(Workbook workbook) {
+    private Map<String, List<String>> parseExcel(Workbook workbook,int sheetIndex) {
         Map<String, List<String>> map = new HashMap<>();
         /* 读EXCEL文字内容 */
         // 获取第一个sheet表，也可使用sheet表名获取
-        Sheet sheet = workbook.getSheetAt(0);
+        Sheet sheet = workbook.getSheetAt(sheetIndex);
         // 获取行
         int i = 0;
         // 逐行解析
@@ -202,7 +238,6 @@ public class MyXlsxUtils {
             for (int i = 0; i < size; i++) {
                 Map.Entry entry = (Map.Entry) iterator.next();
                 Object key = entry.getKey();
-                Object value = entry.getValue();
                 object[i][0] = key;
                 List<String> list = map.get(key);
                 for (int j = 0; j < list.size(); j++) {
